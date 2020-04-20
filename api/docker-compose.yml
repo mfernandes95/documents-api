@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  db_postgres:
+    networks:
+      - electron
+    restart: on-failure
+    image: postgres:12.1-alpine
+    container_name: "postgres_container"
+    environment:
+      - POSTGRES_DB=Electron
+      - POSTGRES_USER:postgres
+      # - POSTGRES_PASSWORD:docker
+    volumes:
+      - "./database/postgres:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 80:80
+      - 433:433
+    networks:
+      - electron
+    restart: on-failure
+    volumes:
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ../react-front/front/build:/var/www/build
+
+  api_node:
+    build: .
+    networks:
+      - electron
+    links:
+      - db_postgres
+    depends_on:
+      - db_postgres
+    image: node:12.14.1-alpine3.11
+    container_name: "node_container"
+    volumes:
+      - .:/usr/app
+    ports:
+      - 3333:3333
+    command: "sh /usr/app/app/start.sh"
+
+networks:
+  electron:
+
