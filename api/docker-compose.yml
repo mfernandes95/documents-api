@@ -3,12 +3,12 @@ version: "3"
 services:
   db_postgres:
     networks:
-      - electron
+      - documentsapi
     restart: on-failure
     image: postgres:12.1-alpine
     container_name: "postgres_container"
     environment:
-      - POSTGRES_DB=Electron
+      - POSTGRES_DB=Documentsapi
       - POSTGRES_USER:postgres
       # - POSTGRES_PASSWORD:docker
     volumes:
@@ -16,24 +16,24 @@ services:
     ports:
       - 5432:5432
 
-  nginx:
-    container_name: nginx
-    build: ./nginx
-    ports:
-      - 80:80
-      - 433:433
-    networks:
-      - electron
-    restart: on-failure
-    volumes:
-      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ../react-front/front/build:/var/www/build
+  # nginx:
+  #   container_name: nginx
+  #   build: ./nginx
+  #   ports:
+  #     - 80:80
+  #     - 433:433
+  #   networks:
+  #     - documentsapi
+  #   restart: on-failure
+  #   volumes:
+  #     - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
+  #     - ../react-front/front/build:/var/www/build
 
   api_node:
     build: .
     networks:
-      - electron
+      - documentsapi
     links:
       - db_postgres
     depends_on:
@@ -47,5 +47,4 @@ services:
     command: "sh /usr/app/app/start.sh"
 
 networks:
-  electron:
-
+  documentsapi:
